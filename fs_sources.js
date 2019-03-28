@@ -1,8 +1,11 @@
 // ==UserScript==
 // @name         Familysearch source adder
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @author       singhsansun
+// @description  Quickly add external online sources to FamilySearch profiles.
+// @updateURL    https://raw.githubusercontent.com/singhsansun/fs/master/fs_sources.js
+// @downloadURL  https://raw.githubusercontent.com/singhsansun/fs/master/fs_sources.js
 // @match        https://www.familysearch.org/tree/person*
 // @grant        none
 // ==/UserScript==
@@ -17,12 +20,12 @@ var addToSourceBox = false; // true or false
 * Source Handler detection.
 */
 function sourceHandlers() {
-    if (/https:\/\/[a-z]+\.geneanet\.org\/.*/.test(url_string)) readSourceWith(geneanet);
-    else if (/https:\/\/www\.geni\.com\/people\/.*/.test(url_string)) readSourceWith(geni);
-    else if (/https:\/\/www\.genealogieonline\.nl(|\/en|\/de|\/fr)\/.*/.test(url_string)) {
+    if (/https?:\/\/[a-z]+\.geneanet\.org\/.*/.test(url_string)) readSourceWith(geneanet);
+    else if (/https?:\/\/www\.geni\.com\/people\/.*/.test(url_string)) readSourceWith(geni);
+    else if (/https?:\/\/www\.genealogieonline\.nl(|\/en|\/de|\/fr)\/.*/.test(url_string)) {
         readSourceWith(genealogieonline);
     }
-    else if (/https:\/\/www\.wikitree\.com\/wiki\/.*/.test(url_string)) readSourceWith(wikitree);
+    else if (/https?:\/\/www\.wikitree\.com\/wiki\/.*/.test(url_string)) readSourceWith(wikitree);
     // Other sites
     else sourceStatus = "URL not recognized.";
     finishSourceProcessing();
