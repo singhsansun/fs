@@ -1,5 +1,5 @@
 # fs
-A JavaScript user script
+A JavaScript user script that creates citations of external websites, to be used on FamilySearch.
 
 ## Configuration
 
@@ -8,5 +8,7 @@ A JavaScript user script
    * Greasemonkey (Firefox): https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/
 2. Open the extension, and create a new userscript. (In the Tampermonkey dashboard, click the button with a '+'.)
 3. Remove the default text from the userscript, and replace it with the contents of fs-sources.js (copy-paste).
+4. Don't forget to save the userscript (in Tampermonkey: File > Save, Ctrl-S or ⌘-S).
+5. You're set to go. If you want to use the userscript in a tab that is already open, don't forget to refresh the tab.
 
 ## Usage
