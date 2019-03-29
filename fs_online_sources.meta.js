@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Familysearch source adder test name
+// @name         Familysearch source adder
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      1.88
 // @author       singhsansun
 // @description  Quickly add external online sources to FamilySearch profiles.
 // @homepage     https://github.com/singhsansun/fs
