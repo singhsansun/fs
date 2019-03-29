@@ -5,7 +5,7 @@ A JavaScript user script that creates citations of external websites, to be used
 
 1. Install a browser extension that allows to execute user scripts. For example:
    * Tampermonkey (all major browsers): https://tampermonkey.net/
-   * Greasemonkey (Firefox): https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/
+   * Greasemonkey (Firefox only): https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/
 2. Open the extension, and create a new userscript. (In the Tampermonkey dashboard, click the button with a '+'.)
 3. Remove the default text from the userscript, and replace it with the contents of fs-sources.js (copy-paste).
 4. Don't forget to save the userscript (in Tampermonkey: File > Save, Ctrl-S or ⌘-S).
