@@ -9,3 +9,4 @@
 // @downloadURL  https://raw.githubusercontent.com/singhsansun/fs/master/fs_online_sources.user.js
 // @match        https://www.familysearch.org/tree/person*
 // @grant        none
+// ==/UserScript==
