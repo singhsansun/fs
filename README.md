@@ -12,3 +12,9 @@ A JavaScript user script that creates citations of external websites, to be used
 5. You're set to go. If you want to use the userscript in a tab that is already open, don't forget to refresh that tab.
 
 ## Usage
+
+## Receive newer versions automatically
+
+By default, you will receive update and bug fixes.
+If you don't want: in Tampermonkey: uncheck the "Check for updates" checkbox in the settings tab of the user script.
+If you want them, but you don't receive them, make sure that checkbox is checked and that the update URL is set to `https://raw.githubusercontent.com/singhsansun/fs/master/fs_online_sources.user.js`.
