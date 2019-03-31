@@ -21,11 +21,11 @@ var addToSourceBox = false; // true or false
 * Source Handler detection.
 */
 function sourceHandlers() {
-    if (/https?:\/\/[a-z]+\.geneanet\.org\/.*/.test(url_string)) readSourceWith(geneanet);
-    else if (/https?:\/\/www\.geni\.com\/people\/.*/.test(url_string)) readSourceWith(geni);
     else if (/https?:\/\/www\.genealogieonline\.nl(|\/en|\/de|\/fr)\/.*/.test(url_string)) {
         readSourceWith(genealogieonline);
     }
+    if (/https?:\/\/[a-z]+\.geneanet\.org\/.*/.test(url_string)) readSourceWith(geneanet);
+    else if (/https?:\/\/www\.geni\.com\/people\/.*/.test(url_string)) readSourceWith(geni);
     else if (/https?:\/\/www\.wikitree\.com\/wiki\/.*/.test(url_string)) readSourceWith(wikitree);
     // Other sites
     else sourceStatus = "URL not recognized.";
@@ -250,3 +250,6 @@ function getDateString() {
     var d = new Date();
     return d.getDate() + " " + months[d.getMonth()] + " " + (d.getYear() + 1900);
 }
+
+// ==Version history==
+// v0.1: includes genealogieonline.nl, geneanet.org, geni.com, wikitree.com
