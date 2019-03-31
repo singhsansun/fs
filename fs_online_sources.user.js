@@ -12,7 +12,7 @@
 // ==/UserScript==
 
 /**
-* Parameters test
+* Parameters
 */
 
 var addToSourceBox = false; // true or false
