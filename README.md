@@ -16,8 +16,19 @@ Your browser may issue a warning. Install the script. If it worked, skip steps 3
 
 ## Usage
 
-## Receive newer versions automatically
+When you want to add or edit an online source, simply go to the sources tab of a profile. Click 'Add Source', then 'Add New Source', and paste the URL in the designated textbox. The user script will load the HTML of the URL you pasted, and extract information to create a citation out of it. Similarly when editing a source, or when adding or editing a source for a relationship.
+It currently works with the following websites:
+* genealogieonline.nl
+* geneanet.org
+* geni.com
+* wikitree.com (only public profiles)
 
-By default, you will receive update and bug fixes.
+## Receiving newer versions automatically
+
+By default, you will receive updates and bug fixes.
 If you don't want: in Tampermonkey: uncheck the "Check for updates" checkbox in the settings tab of the user script.
 If you want them, but you don't receive them, make sure that checkbox is checked and that the update URL is set to `https://raw.githubusercontent.com/singhsansun/fs/master/fs_online_sources.user.js`.
+
+## I found a bug!
+
+Chances are the user script isn't perfect, certainly not on all browsers. If you have found a bug, do open an issue in this GitHub repository.
