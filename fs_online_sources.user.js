@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Familysearch source adder
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @author       singhsansun
 // @description  Quickly add external online sources to FamilySearch profiles.
 // @homepage     https://github.com/singhsansun/fs
@@ -54,7 +54,8 @@ function genealogieonline() {
 }
 
 function geneanet() {
-    var author = loadSrc.querySelector(".ligne-auteur > strong:first-of-type").innerHTML;
+    // Author name may be private
+    var author = (loadSrc.querySelector(".ligne-auteur > strong:first-of-type") || loadSrc.querySelector(".ligne-auteur > a:first-of-type")).innerHTML;
     var url = new URL(url_string);
     var p = url.searchParams.get("p");
     var n = url.searchParams.get("n");
@@ -253,3 +254,4 @@ function getDateString() {
 
 // ==Version history==
 // v0.1: includes genealogieonline.nl, geneanet.org, geni.com, wikitree.com
+// v0.2: fixed bug when geneanet author has no public name; use username istead
