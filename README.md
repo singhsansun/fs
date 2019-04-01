@@ -29,7 +29,7 @@ It currently works with the following websites:
 
 By default, you will receive updates and bug fixes.
 If you don't want: in Tampermonkey: uncheck the "Check for updates" checkbox in the settings tab of the user script.
-If you want them, but you don't receive them, make sure that checkbox is checked and that the lines
+If you want them, but you don't receive them, make sure that checkbox is checked, that the update URL is set to `https://raw.githubusercontent.com/singhsansun/fs/master/fs_online_sources.user.js` and that the lines
 
     // @updateURL    https://raw.githubusercontent.com/singhsansun/fs/master/fs_online_sources.meta.js
     // @downloadURL  https://raw.githubusercontent.com/singhsansun/fs/master/fs_online_sources.user.js
