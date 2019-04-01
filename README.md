@@ -10,7 +10,7 @@ A JavaScript user script that creates citations of external websites, to be used
 The extension should open and ask you to install the script.
 Your browser may issue a warning. Install the script. If it worked, skip steps 3-5 below.
 3. Open the extension, and create a new userscript. (In the Tampermonkey dashboard, click the button with a '+'.)
-4. Remove the default text from the userscript, and replace it with the contents of fs-sources.user.js (copy-paste).
+4. Remove the default text from the userscript, and replace it with the contents of fs_online_sources.user.js (copy-paste).
 5. Don't forget to save the userscript (in Tampermonkey: File > Save, Ctrl-S or ⌘-S).
 6. You're set to go. If you want to use the userscript in a tab that is already open, don't forget to refresh that tab.
 
