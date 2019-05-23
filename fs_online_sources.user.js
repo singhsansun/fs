@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Familysearch source adder
 // @namespace    http://tampermonkey.net/
-// @version      0.3.1
+// @version      0.3.2
 // @author       singhsansun
 // @description  Quickly add external online sources to FamilySearch profiles.
 // @homepage     https://github.com/singhsansun/fs
@@ -114,7 +114,7 @@ function wikitree() {
 function readSourceWith(h) {
     sourceStatus = h(url_string);
     if (!sourceStatus) sourceStatus = "Success!";
-    notesInput.value = "Citation added using the FamilySearch Source Adder (https://github.com/singhsansun/fs)";
+    reasonInput.value = "Citation added using the FamilySearch Source Adder (https://github.com/singhsansun/fs)";
 }
 
 var loadSrc = document.createElement("div");
@@ -124,7 +124,7 @@ var env;
 var editing;
 var editingTab;
 var sourceStatus = "";
-var notesInput;
+var reasonInput;
 
 /**
 * On click, check if earlier source editing environment is still active.
@@ -190,7 +190,7 @@ function initInput() {
     titleInput = env.querySelector("#title-input");
     urlInput = env.querySelector("#url-input");
     citation = env.querySelector("#citation-input");
-    notesInput = env.querySelector("notes-input");
+    reasonInput = env.querySelector("#reason-to-attach-input");
     env.querySelector(".sourcebox-checkbox").children[0].checked = addToSourceBox;
     urlInput.addEventListener("paste", initURLPaste);
 }
