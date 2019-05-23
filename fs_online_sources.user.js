@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Familysearch source adder
 // @namespace    http://tampermonkey.net/
-// @version      0.3
+// @version      0.3.1
 // @author       singhsansun
 // @description  Quickly add external online sources to FamilySearch profiles.
 // @homepage     https://github.com/singhsansun/fs
@@ -114,7 +114,7 @@ function wikitree() {
 function readSourceWith(h) {
     sourceStatus = h(url_string);
     if (!sourceStatus) sourceStatus = "Success!";
-    notesInput.innerHTML = "Citation added using the FamilySearch Source Adder (https://github.com/singhsansun/fs)";
+    notesInput.value = "Citation added using the FamilySearch Source Adder (https://github.com/singhsansun/fs)";
 }
 
 var loadSrc = document.createElement("div");
