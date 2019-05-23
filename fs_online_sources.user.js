@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Familysearch source adder
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.3
 // @author       singhsansun
 // @description  Quickly add external online sources to FamilySearch profiles.
 // @homepage     https://github.com/singhsansun/fs
@@ -107,9 +107,14 @@ function wikitree() {
 * Main code below.
 */
 
+/**
+* Before and after code common to all source handlers. A source handler may
+* return a custom sourceStatus. If not, it is interpreted as success.
+*/
 function readSourceWith(h) {
     sourceStatus = h(url_string);
     if (!sourceStatus) sourceStatus = "Success!";
+    notesInput.innerHTML = "Citation added using the FamilySearch Source Adder (https://github.com/singhsansun/fs)";
 }
 
 var loadSrc = document.createElement("div");
@@ -119,6 +124,7 @@ var env;
 var editing;
 var editingTab;
 var sourceStatus = "";
+var notesInput;
 
 /**
 * On click, check if earlier source editing environment is still active.
@@ -173,6 +179,10 @@ function initEnv() {
     return env;
 }
 
+/**
+* Create status indicator. Define all input fields so that they become editable.
+* Listen for paste event.
+*/
 function initInput() {
     insertAfter(statusIndicator, env.querySelector("#web-page-section").children[1]);
     dateInput = env.querySelector("birch-standards-picker").shadowRoot;
@@ -180,10 +190,15 @@ function initInput() {
     titleInput = env.querySelector("#title-input");
     urlInput = env.querySelector("#url-input");
     citation = env.querySelector("#citation-input");
+    notesInput = env.querySelector("notes-input");
     env.querySelector(".sourcebox-checkbox").children[0].checked = addToSourceBox;
     urlInput.addEventListener("paste", initURLPaste);
 }
 
+/**
+* Code to be executed on paste event. Send XMLHttpRequest through a Proxy,
+* and detect whether a URL is valid.
+*/
 function initURLPaste(e) {
     statusIndicator.innerHTML = "";
     url_string = "";
@@ -255,3 +270,4 @@ function getDateString() {
 // ==Version history==
 // v0.1: includes genealogieonline.nl, geneanet.org, geni.com, wikitree.com
 // v0.2: fixed bug when geneanet author has no public name; use username istead
+// v0.3: add a note with a link to this github repository
