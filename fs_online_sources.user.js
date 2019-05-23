@@ -114,7 +114,7 @@ function wikitree() {
 function readSourceWith(h) {
     sourceStatus = h(url_string);
     if (!sourceStatus) sourceStatus = "Success!";
-    reasonInput.value = "Citation added using the FamilySearch Source Adder (https://github.com/singhsansun/fs)";
+    reasonInput.value = "Citation added using the FamilySearch Source Adder userscript (https://github.com/singhsansun/fs)";
 }
 
 var loadSrc = document.createElement("div");
