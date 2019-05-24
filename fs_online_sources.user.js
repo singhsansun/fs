@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Familysearch source adder
 // @namespace    http://tampermonkey.net/
-// @version      0.3.3
+// @version      1.0
 // @author       singhsansun
 // @description  Quickly add external online sources to FamilySearch profiles.
 // @homepage     https://github.com/singhsansun/fs
@@ -21,12 +21,12 @@ var addToSourceBox = false; // true or false
 * Source Handler detection.
 */
 function sourceHandlers() {
-    if (/https?:\/\/www\.genealogieonline\.nl(|\/en|\/de|\/fr)\/.*/.test(url_string)) {
+    if (/^https?:\/\/www\.genealogieonline\.nl(|\/en|\/de|\/fr)\/.*/.test(url_string)) {
         readSourceWith(genealogieonline);
     }
-    else if (/https?:\/\/[a-z]+\.geneanet\.org\/.*/.test(url_string)) readSourceWith(geneanet);
-    else if (/https?:\/\/www\.geni\.com\/people\/.*/.test(url_string)) readSourceWith(geni);
-    else if (/https?:\/\/www\.wikitree\.com\/wiki\/.*/.test(url_string)) readSourceWith(wikitree);
+    else if (/^https?:\/\/[a-z]+\.geneanet\.org\/.*/.test(url_string)) readSourceWith(geneanet);
+    else if (/^https?:\/\/www\.geni\.com\/people\/.*/.test(url_string)) readSourceWith(geni);
+    else if (/^https?:\/\/www\.wikitree\.com\/wiki\/.*/.test(url_string)) readSourceWith(wikitree);
     // Other sites
     else sourceStatus = "URL not recognized.";
     finishSourceProcessing();
@@ -40,6 +40,12 @@ var dateInput;
 var titleInput;
 var urlInput;
 var citation;
+var nameCheckbox;
+var genderCheckbox;
+var birthCheckbox;
+var christeningCheckbox;
+var deathCheckbox;
+var burialCheckbox;
 
 function genealogieonline() {
     var url = new URL(url_string);
@@ -51,6 +57,8 @@ function genealogieonline() {
     titleInput.value = "Genealogie Online. " + name + " in " + treename + " by " + author + ".";
     citation.value = author + ", \"" + name + "\", " + treename + " on Genealogie Online, "
         + short_url + " (accessed " + getDateString() + ").";
+    // Checkboxes
+    checkName(name);
 }
 
 function geneanet() {
@@ -73,6 +81,21 @@ function geneanet() {
     titleInput.value = "Geneanet " + author + ": " + name;
     citation.value = author + ", \"" + name + "\", Geneanet, "
         + short_url + " (accessed " + getDateString() + ").";
+    // Checkboxes
+    checkName(name);
+    genderCheckbox.checked = loadSrc.querySelector(".with_tabs img").src.indexOf("male") > -1;
+    var eventList = loadSrc.querySelector(".page_max ul");
+    var eventStrings = [];
+    if (eventList) {
+        eventList.querySelectorAll("li").forEach(function(e) {eventStrings.push(e.innerText)});
+        eventStrings.forEach(function(s) {
+            // Birth and death: at least one number, or missing number but location (at least one letter)
+            if (/^Born.*([1-9]|-.*[a-zA-Z]).*/.test(s)) birthCheckbox.checked = true;
+            if (/^Deceased.*([1-9]|-.*[a-zA-Z]).*/.test(s)) deathCheckbox.checked = true;
+            if (s.startsWith("Baptized")) christeningCheckbox.checked = true;
+            if (s.startsWith("Buried")) burialCheckbox.checked = true;
+        })
+    }
 }
 
 function geni() {
@@ -83,6 +106,8 @@ function geni() {
     titleInput.value = "Geni profile: " + name;
     citation.value = "Geni contributors, \"" + name + "\", Geni, "
         + short_url + " (accessed " + getDateString() + ").";
+    // Checkboxes
+    checkName(name);
 }
 
 function wikitree() {
@@ -101,30 +126,40 @@ function wikitree() {
     titleInput.value = "WikiTree profile: " + name;
     citation.value = "WikiTree contributors, \"" + name + "\", WikiTree, "
         + url_string + " (accessed " + getDateString() + ").";
+    // Checkboxes
+    checkName(name);
 }
 
 /**
-* Main code below.
+* If name contains an alphabetical character, check the name checkbox.
+* Used by multiple handlers.
 */
+function checkName(namestring) {
+    if (/[A-Za-z]/.test(namestring)) nameCheckbox.checked = true;
+}
 
 /**
 * Before and after code common to all source handlers. A source handler may
-* return a custom sourceStatus. If not, it is interpreted as success.
+* return a custom sourceStatus. The default status is success.
 */
 function readSourceWith(h) {
     sourceStatus = h(url_string);
-    if (!sourceStatus) sourceStatus = "Success!";
-    reasonInput.value = "Citation added using the FamilySearch Source Adder userscript (https://github.com/singhsansun/fs)";
+    if (!sourceStatus) {
+        sourceStatus = "Success!";
+        saveButton.disabled = false;
+    }
+    reasonInput.value = "Source attached assisted by a FamilySearch source attaching userscript (https://github.com/singhsansun/fs)";
 }
 
 var loadSrc = document.createElement("div");
 var statusIndicator = document.createElement("span");
 statusIndicator.style.paddingLeft = "10px";
-var env;
+var env; // DOM element containing the source form
 var editing;
 var editingTab;
-var sourceStatus = "";
+var sourceStatus = ""; // Text to be displayed in statusindicator
 var reasonInput;
+var saveButton;
 
 /**
 * On click, check if earlier source editing environment is still active.
@@ -181,25 +216,51 @@ function initEnv() {
 
 /**
 * Create status indicator. Define all input fields so that they become editable.
-* Listen for paste event.
+* Start listening for paste event.
 */
 function initInput() {
     insertAfter(statusIndicator, env.querySelector("#web-page-section").children[1]);
+    // Init input fields
     dateInput = env.querySelector("birch-standards-picker").shadowRoot;
     dateInput = dateInput.querySelector("birch-typeahead").shadowRoot.querySelector("#input");
     titleInput = env.querySelector("#title-input");
     urlInput = env.querySelector("#url-input");
     citation = env.querySelector("#citation-input");
     reasonInput = env.querySelector("#reason-to-attach-input");
+    // Init checkboxes
+    nameCheckbox = env.querySelector(".name-checkbox input");
+    genderCheckbox = env.querySelector(".gender-checkbox input");
+    birthCheckbox = env.querySelector(".birth-checkbox input");
+    christeningCheckbox = env.querySelector(".christening-checkbox input");
+    deathCheckbox = env.querySelector(".death-checkbox input");
+    burialCheckbox = env.querySelector(".burial-checkbox input");
+    resetCheckboxes();
     env.querySelector(".sourcebox-checkbox").children[0].checked = addToSourceBox;
+    // Start listening for paste event
     urlInput.addEventListener("paste", initURLPaste);
+    saveButton = env.querySelector("#save-button");
+}
+
+function resetCheckboxes() {
+    nameCheckbox.checked = false;
+    genderCheckbox.checked = false;
+    birthCheckbox.checked = false;
+    christeningCheckbox.checked = false;
+    deathCheckbox.checked = false;
+    burialCheckbox.checked = false;
+}
+
+function insertAfter(newNode, referenceNode) {
+    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
 }
 
 /**
 * Code to be executed on paste event. Send XMLHttpRequest through a Proxy,
-* and detect whether a URL is valid.
+* and detect whether a URL is valid. If not, dislay failure message. If yes,
+* try processing the url with source handlers.
 */
 function initURLPaste(e) {
+    resetCheckboxes();
     statusIndicator.innerHTML = "";
     url_string = "";
     if (e.clipboardData || e.originalEvent.clipboardData) {
@@ -215,7 +276,6 @@ function initURLPaste(e) {
                 sourceHandlers(url_string);
             }
             if (this.status == 404) {
-                console.log("Page not found.");
                 sourceStatus = "Failed."
                 finishSourceProcessing();
             }
@@ -227,6 +287,11 @@ function initURLPaste(e) {
     statusIndicator.innerHTML = "Loading external website...";
 }
 
+/**
+* When user has abandoned editing, remove statusindicator and reset its contents
+* (it will be shown again upon next paste event). Stop listening for paste events.
+* (Listening will start again when new source environment detected.)
+*/
 function stopEditing() {
     console.log("Source editing terminated in tab " + editingTab + ".");
     editing = false;
@@ -235,6 +300,11 @@ function stopEditing() {
     urlInput.removeEventListener("paste", initURLPaste);
 }
 
+/**
+* Show status (Success, Failed, custom message, ...) and reset the status variable
+* to get ready for the next source. Empty the object in which external pages are loaded
+* (no reason to keep the external page running). Keep listening for paste event.
+*/
 function finishSourceProcessing() {
     statusIndicator.innerHTML += " " + sourceStatus;
     sourceStatus = "";
@@ -255,13 +325,12 @@ function getActiveTab() {
     return false;
 }
 
-function insertAfter(newNode, referenceNode) {
-    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
-}
-
 var months = ["January", "February", "March", "April", "May", "June",
               "July", "August", "September", "October", "November", "December"];
 
+/**
+* Gives the current date in the format "1 January 1900"
+*/
 function getDateString() {
     var d = new Date();
     return d.getDate() + " " + months[d.getMonth()] + " " + (d.getYear() + 1900);
@@ -271,3 +340,4 @@ function getDateString() {
 // v0.1: includes genealogieonline.nl, geneanet.org, geni.com, wikitree.com
 // v0.2: fixed bug when geneanet author has no public name; use username istead
 // v0.3: add a note with a link to this github repository
+// v1.0: auto tick checkboxes: detect name on all sites, detect everything on geneanet english version. Fix issue with submit button.
