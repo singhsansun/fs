@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Familysearch source adder
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      1.2
 // @author       singhsansun
 // @description  Quickly add external online sources to FamilySearch profiles.
 // @homepage     https://github.com/singhsansun/fs
@@ -51,7 +51,8 @@ var urlString;
 var dateInput;
 var titleInput;
 var urlInput;
-var citation;
+var citationInput;
+var notesInput;
 var nameCheckbox;
 var genderCheckbox;
 var birthCheckbox;
@@ -67,7 +68,7 @@ function genealogieonline() {
     var name = loadSrc.querySelector("meta[itemprop='name']").content;
     var treename = loadSrc.querySelector("h1").children[0].innerHTML;
     titleInput.value = "Genealogie Online. " + name + " in " + treename + " by " + author + ".";
-    citation.value = author + ", \"" + name + "\", " + treename + " on Genealogie Online, "
+    citationInput.value = author + ", \"" + name + "\", " + treename + " on Genealogie Online, "
         + short_url + " (accessed " + getDateString() + ").";
     // Checkboxes
     checkName(name);
@@ -98,7 +99,7 @@ function geneanet() {
         loadSrc.querySelector("#person-title ~ em > a:nth-of-type(2)")).innerHTML;
     var name = given_name + " " + last_name;
     titleInput.value = "Geneanet " + author + ": " + name;
-    citation.value = author + ", \"" + name + "\", Geneanet, "
+    citationInput.value = author + ", \"" + name + "\", Geneanet, "
         + short_url + " (accessed " + getDateString() + ").";
     // Checkboxes
     checkName(name);
@@ -123,7 +124,7 @@ function geni() {
     // Two possible HTML structures, depending on whether or not logged in.
     var name = (loadSrc.querySelector("h2.quiet") || loadSrc.querySelector("span.quiet")).innerHTML.trim();
     titleInput.value = "Geni profile: " + name;
-    citation.value = "Geni contributors, \"" + name + "\", Geni, "
+    citationInput.value = "Geni contributors, \"" + name + "\", Geni, "
         + short_url + " (accessed " + getDateString() + ").";
     // Checkboxes
     checkName(name);
@@ -143,7 +144,7 @@ function wikitree() {
     if (!nameSpan) return "Cannot access WikiTree profile.";
     var name = nameSpan.innerText.replace(/\s+/g, " ");
     titleInput.value = "WikiTree profile: " + name;
-    citation.value = "WikiTree contributors, \"" + name + "\", WikiTree, "
+    citationInput.value = "WikiTree contributors, \"" + name + "\", WikiTree, "
         + urlString + " (accessed " + getDateString() + ").";
     // Checkboxes
     checkName(name);
@@ -285,8 +286,10 @@ function initInput() {
     dateInput = dateInput.querySelector("birch-typeahead").shadowRoot.querySelector("#input");
     titleInput = env.querySelector("#title-input");
     urlInput = env.querySelector("#url-input");
-    citation = env.querySelector("#citation-input");
-    reasonInput = env.querySelector("#reason-to-attach-input");
+    citationInput = env.querySelector("#citation-input");
+    notesInput = env.querySelector("#notes-input");
+    reasonInput = env.querySelector("div[id] > #reason-to-attach-input") ||
+        env.querySelector("div[id] > #reason-to-change-input");
     // Init checkboxes
     nameCheckbox = env.querySelector(".name-checkbox input");
     genderCheckbox = env.querySelector(".gender-checkbox input");
@@ -304,7 +307,8 @@ function initInput() {
 function resetSourceForm() {
     // Reset text fields
     titleInput.value = "";
-    citation.value = "";
+    citationInput.value = "";
+    notesInput.value = "";
     reasonInput.value = "";
     // Reset checkboxes
     nameCheckbox.checked = false;
@@ -406,3 +410,4 @@ function updateURLParameter(url, param, paramVal) {
 //       geneanet english version. Fix issue with submit button.
 // v1.1: allow changing the url before loading the page. In case of geneanet,
 //       always load english version. Reset entire source form on paste.
+// v1.2: fix bug with detecting source form when editing source
