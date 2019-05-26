@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Familysearch source adder
 // @namespace    http://tampermonkey.net/
-// @version      1.2
+// @version      1.2.1
 // @author       singhsansun
 // @description  Quickly add external online sources to FamilySearch profiles.
 // @homepage     https://github.com/singhsansun/fs
@@ -288,8 +288,8 @@ function initInput() {
     urlInput = env.querySelector("#url-input");
     citationInput = env.querySelector("#citation-input");
     notesInput = env.querySelector("#notes-input");
-    reasonInput = env.querySelector("div[id] > #reason-to-attach-input") ||
-        env.querySelector("div[id] > #reason-to-change-input");
+    reasonInput = env.querySelector("div:not([hidden]) > #reason-to-attach-input") ||
+        env.querySelector("div:not([hidden]) > #reason-to-change-input");
     // Init checkboxes
     nameCheckbox = env.querySelector(".name-checkbox input");
     genderCheckbox = env.querySelector(".gender-checkbox input");
@@ -411,3 +411,4 @@ function updateURLParameter(url, param, paramVal) {
 // v1.1: allow changing the url before loading the page. In case of geneanet,
 //       always load english version. Reset entire source form on paste.
 // v1.2: fix bug with detecting source form when editing source
+// v1.2.1: fix bug with reason input
