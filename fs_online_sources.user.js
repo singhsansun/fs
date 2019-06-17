@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Familysearch source adder
 // @namespace    http://tampermonkey.net/
-// @version      1.2.1
+// @version      1.3
 // @author       singhsansun
 // @description  Quickly add external online sources to FamilySearch profiles.
 // @homepage     https://github.com/singhsansun/fs
@@ -24,6 +24,7 @@ function chooseSourceReader() {
     var urlFix;
     var sourceReader;
     if (/^https?:\/\/www\.genealogieonline\.nl(|\/en|\/de|\/fr)\/.*/.test(urlString)) {
+        urlFix = genealogieonlineURLFix;
         sourceReader = genealogieonline;
     }
     else if (/^https?:\/\/[a-z]+\.geneanet\.org\/.*/.test(urlString)) {
@@ -60,18 +61,38 @@ var christeningCheckbox;
 var deathCheckbox;
 var burialCheckbox;
 
+/**
+* Remove language, hashtags, etc from URL.
+*/
+function genealogieonlineURLFix() {
+    urlString = urlString.replace(/\/(en|de|fr)/, "").replace(/\.php.*/, ".php");
+}
+
 function genealogieonline() {
-    var url = new URL(urlString);
-    var short_url = url.origin + url.pathname.replace(/^\/(en|de|fr)/, "");
-    urlInput.value = short_url;
-    var author = loadSrc.querySelector("meta[name='author']").content;
-    var name = loadSrc.querySelector("meta[itemprop='name']").content;
-    var treename = loadSrc.querySelector("h1").children[0].innerHTML;
+    urlInput.value = urlString;
+    var author = src$("meta[name='author']").content;
+    var name = src$("h3:not(.text-left)").querySelector("meta[itemprop='name']").content;
+    var treename = src$("h1").children[0].innerHTML;
     titleInput.value = "Genealogie Online. " + name + " in " + treename + " by " + author + ".";
     citationInput.value = author + ", \"" + name + "\", " + treename + " on Genealogie Online, "
-        + short_url + " (accessed " + getDateString() + ").";
+        + urlString + " (accessed " + getDateString() + ").";
     // Checkboxes
     checkName(name);
+    if (src$("h3:not(.text-left)").querySelector("meta[itemprop='gender']")) genderCheckbox.checked = true;
+    if (src$("ul.nicelist").querySelector("meta[itemprop='birthDate']")) birthCheckbox.checked = true;
+    if (src$("ul.nicelist").querySelector("span[itemprop='birthPlace']")) birthCheckbox.checked = true;
+    if (src$("ul.nicelist").querySelector("meta[itemprop='deathDate']")) deathCheckbox.checked = true;
+    if (src$("ul.nicelist").querySelector("span[itemprop='deathPlace']")) deathCheckbox.checked = true;
+    var eventList = src$("ul.nicelist");
+    var eventStrings = [];
+    if (eventList) {
+        eventList.querySelectorAll("li").forEach(function(e) {eventStrings.push(e.innerText)});
+        eventStrings.forEach(function(s) {
+            s = s.toLowerCase();
+            if (s.indexOf("gedoopt") > -1) christeningCheckbox.checked = true;
+            if (s.indexOf("begraven") > -1) burialCheckbox.checked = true;
+        });
+    }
 }
 
 /**
@@ -402,6 +423,10 @@ function updateURLParameter(url, param, paramVal) {
     return baseURL + "?" + newAdditionalURL + rows_txt;
 }
 
+function src$(s) {
+    return loadSrc.querySelector(s);
+}
+
 // ==Version history==
 // v0.1: includes genealogieonline.nl, geneanet.org, geni.com, wikitree.com
 // v0.2: fixed bug when geneanet author has no public name; use username istead
@@ -412,3 +437,4 @@ function updateURLParameter(url, param, paramVal) {
 //       always load english version. Reset entire source form on paste.
 // v1.2: fix bug with detecting source form when editing source
 // v1.2.1: fix bug with reason input
+// v1.3: auto tick checkboxes with genealogieonline.nl
