@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Familysearch source adder
 // @namespace    http://tampermonkey.net/
-// @version      1.3
+// @version      1.4
 // @author       singhsansun
 // @description  Quickly add external online sources to FamilySearch profiles.
 // @homepage     https://github.com/singhsansun/fs
@@ -16,13 +16,13 @@
 */
 
 var addToSourceBox = false; // true or false
+var urlFix;
+var sourceReader;
 
 /**
 * Source reader detection.
 */
 function chooseSourceReader() {
-    var urlFix;
-    var sourceReader;
     if (/^https?:\/\/www\.genealogieonline\.nl(|\/en|\/de|\/fr)\/.*/.test(urlString)) {
         urlFix = genealogieonlineURLFix;
         sourceReader = genealogieonline;
@@ -38,15 +38,22 @@ function chooseSourceReader() {
         sourceReader = wikitree;
     }
     else {
-        sourceStatus = "URL not recognized.";
+        sourceStatus = unknownURL;
         finishSourceProcessing();
     }
-    if (urlFix) urlFix();
-    if (sourceReader) loadSource(sourceReader);
+    if (urlFix) {
+        urlFix();
+        urlFix = 0;
+    }
+    if (sourceReader) {
+        resetSourceForm();
+        loadSource();
+    }
 }
 
 /**
 * Source reader implementations. Website with URL urlString is loaded in element loadSrc.
+* Use src$ for element selector on loadSrc.
 */
 var urlString;
 var dateInput;
@@ -54,12 +61,15 @@ var titleInput;
 var urlInput;
 var citationInput;
 var notesInput;
+var reasonInput;
+
 var nameCheckbox;
 var genderCheckbox;
 var birthCheckbox;
 var christeningCheckbox;
 var deathCheckbox;
 var burialCheckbox;
+var sourceboxCheckbox;
 
 /**
 * Remove language, hashtags, etc from URL.
@@ -110,7 +120,8 @@ function geneanet() {
     var n = url.searchParams.get("n");
     var oc = url.searchParams.get("oc");
     var short_url = urlString.split("?")[0] + "?p=" + p + "&n=" + n + (oc?"&oc=" + oc:"");
-    urlInput.value = short_url.replace(' ', '+');
+    short_url = short_url.replace(/ /g, '+');
+    urlInput.value = short_url;
     // Two possible HTML structures:
     // https://gw.geneanet.org/flokty?p=marie+therese&n=maria+theresa
     // https://gw.geneanet.org/flokty?n=joao&p=jean
@@ -180,34 +191,19 @@ function checkName(namestring) {
 }
 
 /**
-* Code to be executed on paste event.
-*/
-function onURLPaste(e) {
-    resetSourceForm();
-    statusIndicator.innerHTML = "";
-    urlString = "";
-    if (e.clipboardData || e.originalEvent.clipboardData) {
-        urlString = (e.originalEvent || e).clipboardData.getData("text/plain");
-    } else if (window.clipboardData) {
-        urlString = window.clipboardData.getData("Text");
-    }
-    chooseSourceReader();
-}
-
-/**
 * Send XMLHttpRequest through a Proxy, and load website in DOM element if accessible.
 * If not, dislay failure message. If yes, process the website with source reader.
 */
-function loadSource(sourceReader) {
+function loadSource() {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4) {
             if (this.status == 200) {
                 loadSrc.innerHTML = this.responseText;
-                readSourceWith(sourceReader);
+                readSource();
             }
             if (this.status == 404) {
-                sourceStatus = "Failed."
+                sourceStatus = failure;
                 finishSourceProcessing();
             }
         }
@@ -215,17 +211,20 @@ function loadSource(sourceReader) {
     const proxyurl = "https://cors-anywhere.herokuapp.com/";
     xhttp.open("GET", proxyurl + urlString, true);
     xhttp.send();
-    statusIndicator.innerHTML = "Loading external website...";
+    setStatus(loading);
 }
 
 /**
 * After code common to all source readers. A source reader may
 * return a custom sourceStatus. The default status is success.
 */
-function readSourceWith(sourceReader) {
+var saveButton;
+
+function readSource() {
     sourceStatus = sourceReader();
+    sourceReader = 0;
     if (!sourceStatus) {
-        sourceStatus = "Success!";
+        sourceStatus = success;
         saveButton.disabled = false;
     }
     reasonInput.value = "Source attached assisted by a FamilySearch source " +
@@ -233,21 +232,43 @@ function readSourceWith(sourceReader) {
     finishSourceProcessing();
 }
 
+/**
+* Element to load external website in.
+*/
 var loadSrc = document.createElement("div");
+
+function src$(s) {
+    return loadSrc.querySelector(s);
+}
+
+/**
+* Statusindicator: text to display above url input field.
+*/
 var statusIndicator = document.createElement("span");
 statusIndicator.style.paddingLeft = "10px";
-var env; // DOM element containing the source form
-var editing;
-var editingTab;
-var sourceStatus = ""; // Text to be displayed in statusindicator
-var reasonInput;
-var saveButton;
+var sourceStatus = "";
+var loading = "Loading external website...";
+var failure = "Failed.";
+var success = "Success!";
+var unknownURL = "URL not recognized.";
+
+function setStatus(s) {
+    statusIndicator.innerHTML = s;
+}
+
+function getStatus() {
+    return statusIndicator.innerHTML;
+}
 
 /**
 * On click, check if earlier source editing environment is still active.
 * If not, stop editing. Also, replace editing environment by new one, if present.
 * If present, prepare new environment for url paste.
 */
+var env; // DOM element containing the source form
+var editing;
+var editingTab;
+
 document.addEventListener('click', function() {
     var newEnv = initEnv();
     var nowEditing = newEnv && newEnv.host.parentNode.style.display != "none";
@@ -261,7 +282,6 @@ document.addEventListener('click', function() {
     if (!editing && nowEditing) {
         editing = true;
         editingTab = getActiveTab();
-        console.log("Source form accessed in tab " + editingTab + ".");
         env = newEnv;
         initInput();
     }
@@ -297,7 +317,7 @@ function initEnv() {
 }
 
 /**
-* Create status indicator. Define all input fields so that they become editable.
+* Insert status indicator. Define all input fields so that they become editable.
 * Start listening for paste event.
 */
 function initInput() {
@@ -318,11 +338,20 @@ function initInput() {
     christeningCheckbox = env.querySelector(".christening-checkbox input");
     deathCheckbox = env.querySelector(".death-checkbox input");
     burialCheckbox = env.querySelector(".burial-checkbox input");
-    resetSourceForm();
-    env.querySelector(".sourcebox-checkbox").children[0].checked = addToSourceBox;
     saveButton = env.querySelector("#save-button");
+    sourceboxCheckbox = env.querySelector(".sourcebox-checkbox").children[0];
     // Start listening for paste event
-    urlInput.addEventListener("paste", onURLPaste);
+    urlInput.addEventListener("paste", onURLChange);
+}
+
+/**
+* Code to be executed on paste event.
+*/
+function onURLChange(e) {
+    setTimeout(function() {
+        urlString = urlInput.value;
+        if(urlString) chooseSourceReader();
+    }, 0);
 }
 
 function resetSourceForm() {
@@ -338,6 +367,7 @@ function resetSourceForm() {
     christeningCheckbox.checked = false;
     deathCheckbox.checked = false;
     burialCheckbox.checked = false;
+    sourceboxCheckbox.checked = addToSourceBox;
 }
 
 function insertAfter(newNode, referenceNode) {
@@ -350,11 +380,11 @@ function insertAfter(newNode, referenceNode) {
 * (Listening will start again when new source environment detected.)
 */
 function stopEditing() {
-    console.log("Source editing terminated in tab " + editingTab + ".");
     editing = false;
     statusIndicator.remove();
-    statusIndicator.innerHTML = "";
-    urlInput.removeEventListener("paste", onURLPaste);
+    setStatus("");
+    sourceStatus = "";
+    urlInput.removeEventListener("paste", onURLChange);
 }
 
 /**
@@ -363,8 +393,12 @@ function stopEditing() {
 * (no reason to keep the external page running). Keep listening for paste event.
 */
 function finishSourceProcessing() {
-    statusIndicator.innerHTML += " " + sourceStatus;
-    sourceStatus = "";
+    if (sourceStatus == unknownURL) {
+        setStatus(unknownURL);
+    } else {
+        setStatus(loading + " " + sourceStatus);
+    }
+    sourceStatus = 0;
     loadSrc.innerHTML = "";
 }
 
@@ -423,10 +457,6 @@ function updateURLParameter(url, param, paramVal) {
     return baseURL + "?" + newAdditionalURL + rows_txt;
 }
 
-function src$(s) {
-    return loadSrc.querySelector(s);
-}
-
 // ==Version history==
 // v0.1: includes genealogieonline.nl, geneanet.org, geni.com, wikitree.com
 // v0.2: fixed bug when geneanet author has no public name; use username istead
@@ -438,3 +468,4 @@ function src$(s) {
 // v1.2: fix bug with detecting source form when editing source
 // v1.2.1: fix bug with reason input
 // v1.3: auto tick checkboxes with genealogieonline.nl
+// v1.4: reset form only if valid URL. More robust display of status. More robust URL detection.
