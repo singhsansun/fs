@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Familysearch source adder
 // @namespace    http://tampermonkey.net/
-// @version      1.4
+// @version      1.5
 // @author       singhsansun
 // @description  Quickly add external online sources to FamilySearch profiles.
 // @homepage     https://github.com/singhsansun/fs
@@ -33,6 +33,10 @@ function chooseSourceReader() {
     }
     else if (/^https?:\/\/www\.geni\.com\/people\/.*/.test(urlString)) {
         sourceReader = geni;
+    }
+    else if (/^https?:\/\/search\.arch\.be\/[a-z]{2}\/(rechercher-des-archives\/resultats|zoeken-naar-archieven\/zoekresultaat)\/inventaris\/rabscan\/eadid.*/.test(urlString)) {
+        urlFix = stateArchivesBelgiumURLFix;
+        sourceReader = stateArchivesBelgium;
     }
     else if (/^https?:\/\/www\.wikitree\.com\/wiki\/.*/.test(urlString)) {
         sourceReader = wikitree;
@@ -114,7 +118,7 @@ function geneanetURLFix() {
 
 function geneanet() {
     // Author name may be private
-    var author = (loadSrc.querySelector(".ligne-auteur > strong:first-of-type") || loadSrc.querySelector(".ligne-auteur > a:first-of-type")).innerHTML;
+    var author = (src$(".ligne-auteur > strong:first-of-type") || src$(".ligne-auteur > a:first-of-type")).innerHTML;
     var url = new URL(urlString);
     var p = url.searchParams.get("p");
     var n = url.searchParams.get("n");
@@ -125,18 +129,18 @@ function geneanet() {
     // Two possible HTML structures:
     // https://gw.geneanet.org/flokty?p=marie+therese&n=maria+theresa
     // https://gw.geneanet.org/flokty?n=joao&p=jean
-    var given_name = (loadSrc.querySelector(".with_tabs > a:nth-of-type(1)") ||
-        loadSrc.querySelector("#person-title ~ em > a:nth-of-type(1)")).innerHTML;
-    var last_name = (loadSrc.querySelector(".with_tabs > a:nth-of-type(2)") ||
-        loadSrc.querySelector("#person-title ~ em > a:nth-of-type(2)")).innerHTML;
+    var given_name = (src$(".with_tabs > a:nth-of-type(1)") ||
+        src$("#person-title ~ em > a:nth-of-type(1)")).innerHTML;
+    var last_name = (src$(".with_tabs > a:nth-of-type(2)") ||
+        src$("#person-title ~ em > a:nth-of-type(2)")).innerHTML;
     var name = given_name + " " + last_name;
     titleInput.value = "Geneanet " + author + ": " + name;
     citationInput.value = author + ", \"" + name + "\", Geneanet, "
         + short_url + " (accessed " + getDateString() + ").";
     // Checkboxes
     checkName(name);
-    genderCheckbox.checked = loadSrc.querySelector(".with_tabs img").src.indexOf("male") > -1;
-    var eventList = loadSrc.querySelector(".page_max ul");
+    genderCheckbox.checked = src$(".with_tabs img").src.indexOf("male") > -1;
+    var eventList = src$(".page_max ul");
     var eventStrings = [];
     if (eventList) {
         eventList.querySelectorAll("li").forEach(function(e) {eventStrings.push(e.innerText)});
@@ -154,12 +158,33 @@ function geni() {
     var short_url = urlString.split("?")[0];
     urlInput.value = short_url;
     // Two possible HTML structures, depending on whether or not logged in.
-    var name = (loadSrc.querySelector("h2.quiet") || loadSrc.querySelector("span.quiet")).innerHTML.trim();
+    var name = (src$("h2.quiet") || loadSrc.querySelector("span.quiet")).innerHTML.trim();
     titleInput.value = "Geni profile: " + name;
     citationInput.value = "Geni contributors, \"" + name + "\", Geni, "
         + short_url + " (accessed " + getDateString() + ").";
     // Checkboxes
     checkName(name);
+}
+
+function stateArchivesBelgiumURLFix() {
+    urlString = urlString.replace("rabscan", "inleiding");
+}
+
+function stateArchivesBelgium() {
+    var scanIndex;
+    while (!scanIndex) scanIndex = prompt("Scan index: (Submit any text to cancel.)");
+    urlString = urlString.replace(/scan-index\/[0-9]+/, "scan-index/" + scanIndex);
+    urlString = urlString.replace("/inleiding/", "/rabscan/");
+    urlInput.value = urlString;
+    var description = "";
+    loadSrc.querySelectorAll(".unittitle").forEach(function(e) {
+        description += e.innerText + ": ";
+    });
+    description = description.slice(0, -2);
+    titleInput.value = description;
+    citationInput.value = "The State Archives in Belgium. " + src$("#content > h2").innerText + ". \""
+        + description + "\". Item: " + src$(".unitid").innerText + ". Image " + scanIndex + ". "
+        + urlString + " (accessed " + getDateString() + ").";
 }
 
 function wikitree() {
@@ -172,8 +197,8 @@ function wikitree() {
     nameSpan.querySelectorAll("a.BLANK").forEach(e => e.parentNode.removeChild(e));
     var name = nameSpan.innerText.replace(/\s+/g, " ").trim();**/
     //shorter name
-    var nameSpan = loadSrc.querySelector("span[itemprop='name']");
-    if (!nameSpan) return "Cannot access WikiTree profile.";
+    var nameSpan = src$("span[itemprop='name']");
+    if (!nameSpan) return "Cannot access WikiTree profile. Is it public?";
     var name = nameSpan.innerText.replace(/\s+/g, " ");
     titleInput.value = "WikiTree profile: " + name;
     citationInput.value = "WikiTree contributors, \"" + name + "\", WikiTree, "
@@ -347,7 +372,7 @@ function initInput() {
 /**
 * Code to be executed on paste event.
 */
-function onURLChange(e) {
+function onURLChange() {
     setTimeout(function() {
         urlString = urlInput.value;
         if(urlString) chooseSourceReader();
@@ -469,3 +494,4 @@ function updateURLParameter(url, param, paramVal) {
 // v1.2.1: fix bug with reason input
 // v1.3: auto tick checkboxes with genealogieonline.nl
 // v1.4: reset form only if valid URL. More robust display of status. More robust URL detection.
+// v1.5: added support for the State Archives of Belgium.
