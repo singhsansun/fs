@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Familysearch source adder
 // @namespace    http://tampermonkey.net/
-// @version      1.5
+// @version      1.6
 // @author       singhsansun
 // @description  Quickly add external online sources to FamilySearch profiles.
 // @homepage     https://github.com/singhsansun/fs
@@ -332,7 +332,10 @@ function initEnv() {
         for (var i = 0; i < dig[j].length && env; i++) {
             env = env.querySelector(dig[j][i]);
             // Environment must be in active tab.
-            if (i == 1 && env && !env.classList.contains("iron-selected")) env = false;
+            if (i == 1 && env && !env.classList.contains("iron-selected")) env = 0;
+            if (env && dig[j][i] === "fs-source" && env.parentNode.style.display === "none") {
+                env = env.parentNode.querySelectorAll("fs-source")[1];
+            }
             if (!env) break;
             env = env.shadowRoot;
         }
@@ -495,3 +498,4 @@ function updateURLParameter(url, param, paramVal) {
 // v1.3: auto tick checkboxes with genealogieonline.nl
 // v1.4: reset form only if valid URL. More robust display of status. More robust URL detection.
 // v1.5: added support for the State Archives of Belgium.
+// v1.6: bug fixes
