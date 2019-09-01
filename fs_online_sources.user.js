@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Familysearch source adder
 // @namespace    http://tampermonkey.net/
-// @version      1.6
+// @version      1.6.1
 // @author       singhsansun
 // @description  Quickly add external online sources to FamilySearch profiles.
 // @homepage     https://github.com/singhsansun/fs
@@ -14,14 +14,14 @@
 /**
 * Parameters
 */
-
 var addToSourceBox = false; // true or false
-var urlFix;
-var sourceReader;
 
 /**
 * Source reader detection.
 */
+var urlFix;
+var sourceReader;
+
 function chooseSourceReader() {
     if (/^https?:\/\/www\.genealogieonline\.nl(|\/en|\/de|\/fr)\/.*/.test(urlString)) {
         urlFix = genealogieonlineURLFix;
@@ -130,9 +130,9 @@ function geneanet() {
     // https://gw.geneanet.org/flokty?p=marie+therese&n=maria+theresa
     // https://gw.geneanet.org/flokty?n=joao&p=jean
     var given_name = (src$(".with_tabs > a:nth-of-type(1)") ||
-        src$("#person-title ~ em > a:nth-of-type(1)")).innerHTML;
+        src$("#person-title ~ em:not(.sosa) > a:nth-of-type(1)")).innerHTML;
     var last_name = (src$(".with_tabs > a:nth-of-type(2)") ||
-        src$("#person-title ~ em > a:nth-of-type(2)")).innerHTML;
+        src$("#person-title ~ em:not(.sosa) > a:nth-of-type(2)")).innerHTML;
     var name = given_name + " " + last_name;
     titleInput.value = "Geneanet " + author + ": " + name;
     citationInput.value = author + ", \"" + name + "\", Geneanet, "
@@ -499,3 +499,4 @@ function updateURLParameter(url, param, paramVal) {
 // v1.4: reset form only if valid URL. More robust display of status. More robust URL detection.
 // v1.5: added support for the State Archives of Belgium.
 // v1.6: bug fixes
+// v1.6.1: bug fixes
