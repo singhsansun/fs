@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Familysearch source adder
 // @namespace    http://tampermonkey.net/
-// @version      1.6.1
+// @version      1.6.2
 // @author       singhsansun
 // @description  Quickly add external online sources to FamilySearch profiles.
 // @homepage     https://github.com/singhsansun/fs
@@ -233,7 +233,7 @@ function loadSource() {
             }
         }
     }
-    const proxyurl = "https://cors-anywhere.herokuapp.com/";
+    const proxyurl = "https://obscure-tor-89730.herokuapp.com/";
     xhttp.open("GET", proxyurl + urlString, true);
     xhttp.send();
     setStatus(loading);
@@ -500,3 +500,4 @@ function updateURLParameter(url, param, paramVal) {
 // v1.5: added support for the State Archives of Belgium.
 // v1.6: bug fixes
 // v1.6.1: bug fixes
+// v1.6.2: stable proxy
