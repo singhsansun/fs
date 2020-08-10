@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Familysearch source adder
 // @namespace    http://tampermonkey.net/
-// @version      1.6.2
+// @version      1.6.3
 // @author       singhsansun
 // @description  Quickly add external online sources to FamilySearch profiles.
 // @homepage     https://github.com/singhsansun/fs
@@ -123,7 +123,8 @@ function geneanet() {
     var p = url.searchParams.get("p");
     var n = url.searchParams.get("n");
     var oc = url.searchParams.get("oc");
-    var short_url = urlString.split("?")[0] + "?p=" + p + "&n=" + n + (oc?"&oc=" + oc:"");
+    var i = url.searchParams.get("i");
+    var short_url = urlString.split("?")[0] + (p?"?p=" + p:"") + (n?"&n=" + n:"") + (oc?"&oc=" + oc:"") + (i?"i?=" + i:"");
     short_url = short_url.replace(/ /g, '+');
     urlInput.value = short_url;
     // Two possible HTML structures:
