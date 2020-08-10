@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Familysearch source adder
 // @namespace    http://tampermonkey.net/
-// @version      1.6.3
+// @version      1.6.4
 // @author       singhsansun
 // @description  Quickly add external online sources to FamilySearch profiles.
 // @homepage     https://github.com/singhsansun/fs
@@ -322,6 +322,9 @@ function initEnv() {
     var env;
     var dig = [ // main
         ["fs-person-page", "fs-tree-person-sources", "fs-source-list",
+         "fs-source-list-container", "fs-source"],
+        // main, edit
+        ["fs-person-page", "fs-tree-person-sources", "fs-tree-collapsable-card", "fs-source-list",
          "fs-source-list-container", "fs-source"],
         // marriage, parent-child
         ["fs-person-page", "fs-tree-person-details", "fs-tree-person-family",
