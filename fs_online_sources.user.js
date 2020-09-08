@@ -79,7 +79,7 @@ var sourceboxCheckbox;
 * Remove language, hashtags, etc from URL.
 */
 function genealogieonlineURLFix() {
-    urlString = urlString.replace(/\/(en|de|fr)/, "").replace(/\.php.*/, ".php");
+    urlString = urlString.replace(/\/(en|de|fr)\//, "").replace(/\.php.*/, ".php");
 }
 
 function genealogieonline() {
