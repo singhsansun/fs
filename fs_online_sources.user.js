@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Familysearch source adder
 // @namespace    http://tampermonkey.net/
-// @version      1.6.4
+// @version      1.6.5
 // @author       singhsansun
 // @description  Quickly add external online sources to FamilySearch profiles.
 // @homepage     https://github.com/singhsansun/fs
@@ -86,7 +86,7 @@ function genealogieonline() {
     urlInput.value = urlString;
     var author = src$("meta[name='author']").content;
     var name = src$("h3:not(.text-left)").querySelector("meta[itemprop='name']").content;
-    var treename = src$("h1").children[0].innerHTML;
+    var treename = src$("h1").children[0].innerText;
     titleInput.value = "Genealogie Online. " + name + " in " + treename + " by " + author + ".";
     citationInput.value = author + ", \"" + name + "\", " + treename + " on Genealogie Online, "
         + urlString + " (accessed " + getDateString() + ").";
