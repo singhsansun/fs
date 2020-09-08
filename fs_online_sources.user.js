@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Familysearch source adder
 // @namespace    http://tampermonkey.net/
-// @version      1.6.6
+// @version      1.6.7
 // @author       singhsansun
 // @description  Quickly add external online sources to FamilySearch profiles.
 // @homepage     https://github.com/singhsansun/fs
@@ -79,7 +79,7 @@ var sourceboxCheckbox;
 * Remove language, hashtags, etc from URL.
 */
 function genealogieonlineURLFix() {
-    urlString = urlString.replace(/\/(en|de|fr)\//, "").replace(/\.php.*/, ".php");
+    urlString = urlString.replace(/\/(en|de|fr)\//, "/").replace(/\.php.*/, ".php");
 }
 
 function genealogieonline() {
