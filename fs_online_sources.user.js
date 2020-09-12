@@ -178,9 +178,12 @@ function stateArchivesBelgium() {
     urlString = urlString.replace("/inleiding/", "/rabscan/");
     urlInput.value = urlString;
     var description = "";
-    loadSrc.querySelectorAll(".unittitle").forEach(function(e) {
-        description += e.innerText + ": ";
-    });
+    var subtitles = Array.from(loadSrc.querySelectorAll(".unittitle")).map(e => e.innerText);
+    for (var i = 0; i < subtitles.length; i++) {
+        if (i != 1) {
+            description += subtitles[i] + ": ";
+        }
+    }
     description = description.slice(0, -2);
     titleInput.value = description;
     citationInput.value = "The State Archives in Belgium. " + src$("#content > h2").innerText + ". \""
