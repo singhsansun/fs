@@ -147,8 +147,8 @@ function geneanet() {
         eventList.querySelectorAll("li").forEach(function(e) {eventStrings.push(e.innerText)});
         eventStrings.forEach(function(s) {
             // Birth and death: at least one number, or missing number but location (at least one letter)
-            if (/^Born.*([1-9]|-.*[a-zA-Z]).*/.test(s)) birthCheckbox.checked = true;
-            if (/^Deceased.*([1-9]|-.*[a-zA-Z]).*/.test(s)) deathCheckbox.checked = true;
+            if (/^Born[\s\S]*([1-9]|-[\s\S]*[a-zA-Z])[\s\S]*/.test(s)) birthCheckbox.checked = true;
+            if (/^Deceased[\s\S]*([1-9]|-[\s\S]*[a-zA-Z])[\s\S]*/.test(s)) deathCheckbox.checked = true;
             if (s.startsWith("Baptized")) christeningCheckbox.checked = true;
             if (s.startsWith("Buried")) burialCheckbox.checked = true;
         });
